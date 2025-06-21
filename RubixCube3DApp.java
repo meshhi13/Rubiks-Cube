@@ -1,5 +1,8 @@
 package Rubix;
 
+import Rubix.Util.InteractionUtil;
+import Rubix.Util.LightingUtil;
+import Rubix.Util.UIUtil;
 import javafx.application.Application;
 import javafx.scene.*;
 import javafx.scene.layout.*;
@@ -33,7 +36,7 @@ public class RubixCube3DApp extends Application {
         InteractionUtil.enableRotation(subScene, rotateX, rotateY);
         InteractionUtil.enableZoom(subScene, camera);
 
-        AnchorPane uiOverlay = UIUtil.createUI(cube);
+        AnchorPane uiOverlay = UIUtil.createUI(cube, camera);
 
         StackPane root = new StackPane();
         root.setStyle("-fx-background-color: white;");

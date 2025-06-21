@@ -1,10 +1,13 @@
-package Rubix;
+package Rubix.Util;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
+import javafx.scene.PerspectiveCamera;
 import javafx.scene.control.Button;
 import javafx.scene.layout.*;
 import Rubix.RubixCube;
@@ -29,13 +32,33 @@ public class UIUtil {
         + "-fx-cursor: hand; "
         + "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 4, 0, 0, 2);";
 
-    public static AnchorPane createUI(RubixCube cube) {
+    static HashMap<Button, Boolean> buttonStates = new HashMap<>();
+    static HashMap<Button, Thread> buttonThreads = new HashMap<>();
+    static List<String> tempButtonLabels = Arrays.asList("F", "R", "U", "F'", "R'", "U'", "L", "B", "D", "L'", "B'", "D'", "◀", "▶", "⟳", "+", "-");
+    static List<String> tempDisableLabels = Arrays.asList("F", "R", "U", "F'", "R'", "U'", "L", "B", "D", "L'", "B'", "D'", "◀", "▶", "⟳");
+
+    public static AnchorPane createUI(RubixCube cube, PerspectiveCamera camera) {
         AnchorPane overlay = new AnchorPane();
         overlay.setPickOnBounds(false);
 
         HBox zoomBox = new HBox(10);
         zoomBox.setStyle("-fx-padding: 20 10 20 10;");
         zoomBox.getChildren().addAll(createButton("+"), createButton("-"));
+
+        ObservableList<Node> zoomButtons = zoomBox.getChildren();
+        Button zoomIn = (Button) zoomButtons.get(0);
+        Button zoomOut = (Button) zoomButtons.get(1);
+
+        zoomIn.setOnAction(e -> {
+            InteractionUtil.zoomIn(camera);
+            buttonAction(zoomIn);
+        });
+
+        zoomOut.setOnAction(e -> {
+            InteractionUtil.zoomOut(camera);
+            buttonAction(zoomOut);
+        });
+
         AnchorPane.setLeftAnchor(zoomBox, 10.0);
         AnchorPane.setBottomAnchor(zoomBox, 10.0);
 
@@ -43,6 +66,7 @@ public class UIUtil {
         scrambleBox.setStyle("-fx-padding: 20 10 20 10;");
         scrambleBox.getChildren().add(createButton("⟳"));
         overlay.getChildren().add(scrambleBox);
+
         AnchorPane.setLeftAnchor(scrambleBox, 10.0);
         AnchorPane.setTopAnchor(scrambleBox, 10.0);
         
@@ -53,19 +77,29 @@ public class UIUtil {
             createButton("⏩")
         );
 
-        HBox rotateBox = new HBox(10);
-        rotateBox.setStyle("-fx-padding: 20 10 20 10;");
-        rotateBox.getChildren().addAll(
+        HBox rotateRow1 = new HBox(10);
+        rotateRow1.getChildren().addAll(
             createButton("F"), createButton("R"), createButton("U"),
-            createButton("F'"), createButton("R'"), createButton("U'"),
+            createButton("F'"), createButton("R'"), createButton("U'")
+        );
+
+        HBox rotateRow2 = new HBox(10);
+        rotateRow2.getChildren().addAll(
             createButton("L"), createButton("B"), createButton("D"),
             createButton("L'"), createButton("B'"), createButton("D'")
         );
 
+        VBox rotateBox = new VBox(rotateRow1, rotateRow2);
+        rotateBox.setSpacing(10);
+        rotateBox.setStyle("-fx-padding: 20 10 20 10;");
 
         AnchorPane.setRightAnchor(rotateBox, 10.0);
         AnchorPane.setTopAnchor(rotateBox, 10.0);
-        ObservableList<Node> rotateButtons = rotateBox.getChildren();
+        
+        ObservableList<Node> rotateButtons = FXCollections.observableArrayList();
+        rotateButtons.addAll(rotateRow1.getChildren());
+        rotateButtons.addAll(rotateRow2.getChildren());
+
         Button front = (Button) rotateButtons.get(0);
         Button right = (Button) rotateButtons.get(1);
         Button up = (Button) rotateButtons.get(2);
@@ -81,52 +115,63 @@ public class UIUtil {
 
         front.setOnAction(e -> {
             cube.rotateFace(4, true);
+            buttonAction(front);
         });
         
         right.setOnAction(e -> {
             cube.rotateFace(1, true);
+            buttonAction(right);
         });
 
         up.setOnAction(e -> {
             cube.rotateFace(2, true);
+            buttonAction(up);
         });
 
         frontReverse.setOnAction(e -> {
             cube.rotateFace(4, false);
+            buttonAction(frontReverse);
         });
 
         rightReverse.setOnAction(e -> {
             cube.rotateFace(1, false);
+            buttonAction(rightReverse);
         });
 
         upReverse.setOnAction(e -> {
             cube.rotateFace(2, false);
+            buttonAction(upReverse);
         });
 
         left.setOnAction(e -> {
             cube.rotateFace(0, true);
+            buttonAction(left);
         });
 
         back.setOnAction(e -> {
             cube.rotateFace(5, true);
+            buttonAction(back);
         });
 
         down.setOnAction(e -> {
             cube.rotateFace(3, true);
+            buttonAction(down);
         });
 
         leftReverse.setOnAction(e -> {
             cube.rotateFace(0, false);
+            buttonAction(leftReverse);
         });
 
         backReverse.setOnAction(e -> {
             cube.rotateFace(5, false);
+            buttonAction(backReverse);
         });
 
         downReverse.setOnAction(e -> {
             cube.rotateFace(3, false);
+            buttonAction(downReverse);
         });
-
         
         AnchorPane.setRightAnchor(playbackBox, 10.0);
         AnchorPane.setBottomAnchor(playbackBox, 10.0);
@@ -141,48 +186,70 @@ public class UIUtil {
         return overlay;
     }
     
-    private static final List<Button> allButtons = new ArrayList<>();
-
     private static Button createButton(String label) {
         Button btn = new Button(label);
-        System.out.println(btn.getText());
-        final boolean[] clicked = {false};
 
-        String style = clicked[0] ? hoverStyle : baseStyle;
-        btn.setStyle(style);
+        buttonStates.put(btn, false);
 
-        allButtons.add(btn);
+        btn.setStyle(baseStyle);
 
-        btn.setOnAction(e -> {
-            for (Button b : allButtons) {
-                if (b != btn) {
-                    b.setStyle(baseStyle);
-                }
-            }
-            clicked[0] = !clicked[0];
-            btn.setStyle(clicked[0] ? hoverStyle : baseStyle);
-
-            if (label.equals("◀") || label.equals("▶") || label.equals("⟳")) {
-                btn.setStyle(hoverStyle);
-                new Thread(() -> {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException ex) {
-                        Thread.currentThread().interrupt();
-                    }
-                    javafx.application.Platform.runLater(() -> {
-                        clicked[0] = false;
-                        btn.setStyle(baseStyle);
-                    });
-                }).start();
-            }
-        });
+        btn.setOnAction(e -> buttonAction(btn));
 
         btn.setOnMouseEntered(e -> btn.setStyle(hoverStyle));
         btn.setOnMouseExited(e -> {
-            if (!clicked[0]) btn.setStyle(baseStyle);
+            if (!buttonStates.get(btn))
+                btn.setStyle(baseStyle);
         });
 
         return btn;
+    }
+
+    private static void buttonAction(Button btn) {
+        String label = btn.getText();
+
+        if (tempButtonLabels.contains(label)) {
+            Thread oldThread = buttonThreads.get(btn);
+            if (oldThread != null && oldThread.isAlive()) {
+                oldThread.interrupt();
+            }
+
+            Thread thread = new Thread(() -> {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    return;
+                }
+                javafx.application.Platform.runLater(() -> {
+                    btn.setDisable(false);
+                    btn.setStyle(baseStyle);
+                    buttonStates.put(btn, false);
+                });
+            });
+
+            buttonStates.put(btn, true);
+            btn.setStyle(hoverStyle);
+            buttonThreads.put(btn, thread);
+            if (tempDisableLabels.contains(label)) {
+                btn.setDisable(true);
+            }
+
+            thread.start();
+
+        }
+        else {
+            if (buttonStates.get(btn))
+                buttonStates.put(btn, false);
+            else 
+                buttonStates.put(btn, true);
+
+            String style = buttonStates.get(btn) ? hoverStyle : baseStyle;
+            btn.setStyle(style);
+
+            for (Button b : buttonStates.keySet()) {
+                if (b != btn) {
+                    b.setStyle(baseStyle);
+                }
+            }       
+        }
     }
 }

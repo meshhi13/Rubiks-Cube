@@ -1,4 +1,4 @@
-package Rubix;
+package Rubix.Util;
 
 import java.util.HashMap;
 import java.util.Map;

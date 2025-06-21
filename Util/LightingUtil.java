@@ -1,4 +1,4 @@
-package Rubix;
+package Rubix.Util;
 import javafx.scene.AmbientLight;
 import javafx.scene.Group;
 import javafx.scene.PointLight;

@@ -31,7 +31,6 @@ public class RubixCube {
             for (int j = 0; j < SIZE; j++) {
                 for (int k = 0; k < SIZE; k++) {
                     faces[i][j][k] = colorPalette[i];
-                    System.out.println("Face " + i + " at (" + j + ", " + k + ") color: " + ColorUtil.getColorName(faces[i][j][k]));
                 }
             }
         }
@@ -250,7 +249,6 @@ public class RubixCube {
 
     private boolean isOnFace (Node node, int faceIndex) {
         int[] coords = (int[]) node.getUserData();
-        System.out.println("Checking node at " + coords[0] + ", " + coords[1] + ", " + coords[2] + " for face " + faceIndex);
 
         switch (faceIndex) {
             case 0: // +X face
