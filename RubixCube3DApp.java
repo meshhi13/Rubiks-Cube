@@ -12,7 +12,7 @@ import javafx.stage.Stage;
 
 public class RubixCube3DApp extends Application {
 
-    private Rotate rotateX = new Rotate(20, Rotate.X_AXIS);
+    private Rotate rotateX = new Rotate(30, Rotate.X_AXIS);
     private Rotate rotateY = new Rotate(30, Rotate.Y_AXIS);
 
     @Override
@@ -36,7 +36,7 @@ public class RubixCube3DApp extends Application {
         InteractionUtil.enableRotation(subScene, rotateX, rotateY);
         InteractionUtil.enableZoom(subScene, camera);
 
-        AnchorPane uiOverlay = UIUtil.createUI(cube, camera);
+        AnchorPane uiOverlay = UIUtil.createUI(cube, camera, cubeGroup, rotateX, rotateY);
 
         StackPane root = new StackPane();
         root.setStyle("-fx-background-color: white;");

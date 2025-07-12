@@ -21,8 +21,9 @@ public class InteractionUtil {
         });
 
         scene.setOnMouseDragged((MouseEvent event) -> {
-            rotateX.setAngle(anchorAngleX[0] - (anchorY[0] - event.getSceneY()));
-            rotateY.setAngle(anchorAngleY[0] + (anchorX[0] - event.getSceneX()));
+            double rotationSpeed = 0.35;
+            rotateX.setAngle(anchorAngleX[0] - ((anchorY[0] - event.getSceneY())) * rotationSpeed);
+            rotateY.setAngle(anchorAngleY[0] + ((anchorX[0] - event.getSceneX())) * rotationSpeed);
         });
     }
 

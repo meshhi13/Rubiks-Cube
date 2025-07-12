@@ -4,12 +4,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import javafx.scene.Group;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.control.Button;
 import javafx.scene.layout.*;
+import javafx.scene.transform.Rotate;
 import Rubix.RubixCube;
 
 public class UIUtil {
@@ -37,17 +39,31 @@ public class UIUtil {
     static List<String> tempButtonLabels = Arrays.asList("F", "R", "U", "F'", "R'", "U'", "L", "B", "D", "L'", "B'", "D'", "◀", "▶", "⟳", "+", "-");
     static List<String> tempDisableLabels = Arrays.asList("F", "R", "U", "F'", "R'", "U'", "L", "B", "D", "L'", "B'", "D'", "◀", "▶", "⟳");
 
-    public static AnchorPane createUI(RubixCube cube, PerspectiveCamera camera) {
+    public static AnchorPane createUI(RubixCube cube, PerspectiveCamera camera, Group cubeGroup, Rotate rotateX, Rotate rotateY) {
         AnchorPane overlay = new AnchorPane();
         overlay.setPickOnBounds(false);
 
         HBox zoomBox = new HBox(10);
         zoomBox.setStyle("-fx-padding: 20 10 20 10;");
-        zoomBox.getChildren().addAll(createButton("+"), createButton("-"));
+        zoomBox.getChildren().addAll(createButton("+"), createButton("-"), createButton("⤾" ));
 
         ObservableList<Node> zoomButtons = zoomBox.getChildren();
         Button zoomIn = (Button) zoomButtons.get(0);
         Button zoomOut = (Button) zoomButtons.get(1);
+        Button resetView = (Button) zoomButtons.get(2);
+
+        resetView.setOnAction(e -> {
+            // Reset camera zoom
+            camera.setTranslateZ(-650);
+
+            // Reset cube rotation
+            cubeGroup.getTransforms().clear();
+            cubeGroup.getTransforms().addAll(rotateX, rotateY);
+            rotateX.setAngle(30);
+            rotateY.setAngle(30);
+
+            buttonAction(resetView);
+        });
 
         zoomIn.setOnAction(e -> {
             InteractionUtil.zoomIn(camera);
@@ -85,8 +101,8 @@ public class UIUtil {
 
         HBox rotateRow2 = new HBox(10);
         rotateRow2.getChildren().addAll(
-            createButton("L"), createButton("B"), createButton("D"),
-            createButton("L'"), createButton("B'"), createButton("D'")
+            createButton("B"), createButton("L"), createButton("D"),
+            createButton("B'"), createButton("L'"), createButton("D'")
         );
 
         VBox rotateBox = new VBox(rotateRow1, rotateRow2);
@@ -106,11 +122,11 @@ public class UIUtil {
         Button frontReverse = (Button) rotateButtons.get(3);
         Button rightReverse = (Button) rotateButtons.get(4);
         Button upReverse = (Button) rotateButtons.get(5);
-        Button left = (Button) rotateButtons.get(6);
-        Button back = (Button) rotateButtons.get(7);
+        Button back = (Button) rotateButtons.get(6);
+        Button left = (Button) rotateButtons.get(7);
         Button down = (Button) rotateButtons.get(8);
-        Button leftReverse = (Button) rotateButtons.get(9);
-        Button backReverse = (Button) rotateButtons.get(10);
+        Button backReverse = (Button) rotateButtons.get(9);
+        Button leftReverse = (Button) rotateButtons.get(10);
         Button downReverse = (Button) rotateButtons.get(11);
 
         front.setOnAction(e -> {

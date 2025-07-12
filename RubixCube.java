@@ -12,28 +12,45 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.util.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
+
+import Rubix.Util.ColorUtil;
+import static Rubix.RubixSide.SIZE;
 
 public class RubixCube {
-    private static final int SIZE = 3;
     private static final int CUBELET_SIZE = 50;
     private static final int GAP = 2;
-    private static final int COLORS = 6;
     private static final Color[] colorPalette = {
         Color.GREEN, Color.RED, Color.YELLOW, Color.WHITE, Color.BLUE, Color.CYAN
     };
-    Group cubeGroup = new Group();
-        
 
-    private Color[][][] faces =  new Color[COLORS][SIZE][SIZE];
+    RubixSide left;
+    RubixSide right;
+    RubixSide up;
+    RubixSide down;
+    RubixSide front;
+    RubixSide back;    
+
+    private static final double DISTANCE = 2.5;
+    private static final String labelStyle = 
+        "-fx-font-size: 20px; " +
+        "-fx-text-fill: black; " +
+        "-fx-text-color: black; " +
+        "-fx-font-weight: bold; " +
+        "-fx-background-radius: 0; " +
+        "-fx-background-color: transparent; " +
+        "-fx-padding: 0; " +
+        "-fx-alignment: center;";
+
+    Group cubeGroup = new Group();
 
     public RubixCube() {
-        for (int i = 0; i < COLORS; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                for (int k = 0; k < SIZE; k++) {
-                    faces[i][j][k] = colorPalette[i];
-                }
-            }
-        }
+        left = new RubixSide(colorPalette[0]);
+        right = new RubixSide(colorPalette[1]);
+        up = new RubixSide(colorPalette[2]);
+        down = new RubixSide(colorPalette[3]);
+        front = new RubixSide(colorPalette[4]);
+        back = new RubixSide(colorPalette[5]);
     }
 
     
@@ -65,7 +82,7 @@ public class RubixCube {
         // +X face (Left, face 0)
         if (x == 0) {
             Box sticker = new Box(size, size, 1);
-            sticker.setMaterial(new PhongMaterial(faces[0][z][y]));
+            sticker.setMaterial(new PhongMaterial(left.values[z][y]));
             sticker.setTranslateX(base.getTranslateX() - offset);
             sticker.setTranslateY(base.getTranslateY());
             sticker.setTranslateZ(base.getTranslateZ());
@@ -73,16 +90,10 @@ public class RubixCube {
             sticker.setRotate(90);
             if (y == 1 && z == 1) {
                 Label stickerLabel = new Label("L");
-                stickerLabel.setStyle(
-                    "-fx-background-color: transparent;" +
-                    "-fx-text-fill: black;" +
-                    "-fx-font-size: 24px;" +
-                    "-fx-font-weight: bold;" +
-                    "-fx-alignment: center;"
-                );
+                stickerLabel.setStyle(labelStyle);
                 stickerLabel.setMinSize(size, size);
                 stickerLabel.setMaxSize(size, size);
-                stickerLabel.setTranslateX(sticker.getTranslateX() - offset - 1.5);
+                stickerLabel.setTranslateX(sticker.getTranslateX() - offset - DISTANCE);
                 stickerLabel.setTranslateY(sticker.getTranslateY() - size / 2);
                 stickerLabel.setTranslateZ(sticker.getTranslateZ());
                 stickerLabel.setAlignment(javafx.geometry.Pos.CENTER);
@@ -93,10 +104,10 @@ public class RubixCube {
             cubelet.getChildren().add(sticker);
         }
 
-        // -X face (Left, face 1)
+        // -X face (Right, face 1)
         if (x == 2) {
             Box sticker = new Box(size, size, 1);
-            sticker.setMaterial(new PhongMaterial(faces[1][z][2 - y]));
+            sticker.setMaterial(new PhongMaterial(right.values[z][y]));
             sticker.setTranslateX(base.getTranslateX() + offset);
             sticker.setTranslateY(base.getTranslateY());
             sticker.setTranslateZ(base.getTranslateZ());
@@ -104,18 +115,13 @@ public class RubixCube {
             sticker.setRotate(90);
             if (y == 1 && z == 1) {
                 Label stickerLabel = new Label("R");
-                stickerLabel.setStyle(
-                    "-fx-background-color: transparent;" +
-                    "-fx-text-fill: black;" +
-                    "-fx-font-size: 24px;" +
-                    "-fx-font-weight: bold;" +
-                    "-fx-alignment: center;"
-                );
+                stickerLabel.setStyle(labelStyle);
                 stickerLabel.setMinSize(size, size);
                 stickerLabel.setMaxSize(size, size);
-                stickerLabel.setTranslateX(sticker.getTranslateX() - offset + 1.5);
+                stickerLabel.setTranslateX(sticker.getTranslateX() - offset + DISTANCE);
                 stickerLabel.setTranslateY(sticker.getTranslateY() - size / 2);
                 stickerLabel.setTranslateZ(sticker.getTranslateZ());
+                stickerLabel.setAlignment(javafx.geometry.Pos.CENTER);
                 stickerLabel.setRotationAxis(Rotate.Y_AXIS);
                 stickerLabel.setRotate(-90);
                 cubelet.getChildren().add(stickerLabel);
@@ -126,7 +132,7 @@ public class RubixCube {
         // +Y face (Up, face 2)
         if (y == 0) {
             Box sticker = new Box(size, size, 1);
-            sticker.setMaterial(new PhongMaterial(faces[2][x][z]));
+            sticker.setMaterial(new PhongMaterial(up.values[x][z]));
             sticker.setTranslateX(base.getTranslateX());
             sticker.setTranslateY(base.getTranslateY() - offset);
             sticker.setTranslateZ(base.getTranslateZ());
@@ -134,16 +140,10 @@ public class RubixCube {
             sticker.setRotate(90);
             if (x == 1 && z == 1) {
                 Label stickerLabel = new Label("U");
-                stickerLabel.setStyle(
-                    "-fx-background-color: transparent;" +
-                    "-fx-text-fill: black;" +
-                    "-fx-font-size: 24px;" +
-                    "-fx-font-weight: bold;" +
-                    "-fx-alignment: center;"
-                );
+                stickerLabel.setStyle(labelStyle);
                 stickerLabel.setMinSize(size, size);
                 stickerLabel.setMaxSize(size, size);
-                stickerLabel.setTranslateY(sticker.getTranslateY() - offset - 1.5);
+                stickerLabel.setTranslateY(sticker.getTranslateY() - offset - DISTANCE);
                 stickerLabel.setTranslateX(sticker.getTranslateX() - size / 2);
                 stickerLabel.setTranslateZ(sticker.getTranslateZ());
                 stickerLabel.setAlignment(javafx.geometry.Pos.CENTER);
@@ -156,7 +156,7 @@ public class RubixCube {
         // -Y face (Down, face 3)
         if (y == 2) {
             Box sticker = new Box(size, size, 1);
-            sticker.setMaterial(new PhongMaterial(faces[3][x][2 - z]));
+            sticker.setMaterial(new PhongMaterial(down.values[x][z]));
             sticker.setTranslateX(base.getTranslateX());
             sticker.setTranslateY(base.getTranslateY() + offset);
             sticker.setTranslateZ(base.getTranslateZ());
@@ -164,16 +164,10 @@ public class RubixCube {
             sticker.setRotate(90);
             if (x == 1 && z == 1) {
                 Label stickerLabel = new Label("D");
-                stickerLabel.setStyle(
-                    "-fx-background-color: transparent;" +
-                    "-fx-text-fill: black;" +
-                    "-fx-font-size: 24px;" +
-                    "-fx-font-weight: bold;" +
-                    "-fx-alignment: center;"
-                );
+                stickerLabel.setStyle(labelStyle);
                 stickerLabel.setMinSize(size, size);
                 stickerLabel.setMaxSize(size, size);
-                stickerLabel.setTranslateY(sticker.getTranslateY() - offset + 1.5);
+                stickerLabel.setTranslateY(sticker.getTranslateY() - offset + DISTANCE);
                 stickerLabel.setTranslateX(sticker.getTranslateX() - size / 2);
                 stickerLabel.setTranslateZ(sticker.getTranslateZ());
                 stickerLabel.setAlignment(javafx.geometry.Pos.CENTER);
@@ -187,22 +181,16 @@ public class RubixCube {
         // +Z face (Front, face 4)
         if (z == 0) {
             Box sticker = new Box(size, size, 1);
-            sticker.setMaterial(new PhongMaterial(faces[4][x][y]));
+            sticker.setMaterial(new PhongMaterial(front.values[x][y]));
             sticker.setTranslateX(base.getTranslateX());
             sticker.setTranslateY(base.getTranslateY());
             sticker.setTranslateZ(base.getTranslateZ() - offset);
             if (x == 1 && y == 1) {
                 Label stickerLabel = new Label("F");
-                stickerLabel.setStyle(
-                    "-fx-background-color: transparent;" +
-                    "-fx-text-fill: black;" +
-                    "-fx-font-size: 24px;" +
-                    "-fx-font-weight: bold;" +
-                    "-fx-alignment: center;"
-                );
+                stickerLabel.setStyle(labelStyle);
                 stickerLabel.setMinSize(size, size);
                 stickerLabel.setMaxSize(size, size);
-                stickerLabel.setTranslateZ(sticker.getTranslateZ() - 1.5);
+                stickerLabel.setTranslateZ(sticker.getTranslateZ() - DISTANCE);
                 stickerLabel.setTranslateY(sticker.getTranslateY() - size / 2);
                 stickerLabel.setTranslateX(sticker.getTranslateX() - size / 2);
                 stickerLabel.setAlignment(javafx.geometry.Pos.CENTER);
@@ -215,23 +203,17 @@ public class RubixCube {
         // -Z face (Back, face 5)
         if (z == 2) {
             Box sticker = new Box(size, size, 1);
-            sticker.setMaterial(new PhongMaterial(faces[5][2 - x][y]));
+            sticker.setMaterial(new PhongMaterial(back.values[x][y]));
             sticker.setTranslateX(base.getTranslateX());
             sticker.setTranslateY(base.getTranslateY());
             sticker.setTranslateZ(base.getTranslateZ() + offset);
             sticker.setRotationAxis(Rotate.Y_AXIS);
             if (x == 1 && y == 1) {
                 Label stickerLabel = new Label("B");
-                stickerLabel.setStyle(
-                    "-fx-background-color: transparent;" +
-                    "-fx-text-fill: black;" +
-                    "-fx-font-size: 24px;" +
-                    "-fx-font-weight: bold;" +
-                    "-fx-alignment: center;"
-                );
+                stickerLabel.setStyle(labelStyle);
                 stickerLabel.setMinSize(size, size);
                 stickerLabel.setMaxSize(size, size);
-                stickerLabel.setTranslateZ(sticker.getTranslateZ() + 1.5);
+                stickerLabel.setTranslateZ(sticker.getTranslateZ() + DISTANCE);
                 stickerLabel.setTranslateY(sticker.getTranslateY() - size / 2);
                 stickerLabel.setTranslateX(sticker.getTranslateX() - size / 2);
                 stickerLabel.setAlignment(javafx.geometry.Pos.CENTER);
@@ -268,11 +250,97 @@ public class RubixCube {
         }
     }
 
-    public void updateFacesArray (int faceIndex, boolean clockwise) {
-        ;
+    private void updateFacesArray(int faceIndex, boolean clockwise){
+        System.out.println("Rotating face: " + faceIndex + ", clockwise: " + clockwise);
+
+        switch (faceIndex) {
+            case 0:
+                if (clockwise) {
+                    
+                    left.values = left.transposeSide();
+
+                    Color[] temp = front.getCol(0);
+                    front.setCol(0, up.getCol(0));
+                    up.setCol(0, back.getCol(0));
+                    back.setCol(0, down.getCol(0));
+                    down.setCol(0, temp);  
+                }
+                break;
+            case 1:
+                if (clockwise) {
+                    Color[][] newValues = new Color[SIZE][SIZE];
+                    for (int i = 0; i < SIZE; i++){
+                        newValues[i] = right.getRow(i);   
+                    }
+
+                    right.values = newValues;
+
+                    Color[] temp = back.getCol(2);
+                    back.setCol(2, up.getCol(2));
+                    up.setCol(2, front.getCol(2));
+                    front.setCol(2, down.getCol(2));
+                    down.setCol(2, temp);  
+                }
+                break;
+            case 2:
+                if (clockwise) {
+                    
+                    Color[][] newValues = new Color[SIZE][SIZE];
+                    for (int i = 0; i < SIZE; i++){
+                        newValues[i] = up.getRow(i);   
+                    }
+
+                    up.values = newValues;
+
+                    Color[] temp = front.getRow(0);
+                    front.setRow(0, right.getRow(0));
+                    right.setRow(0, back.getRow(0));
+                    back.setRow(0, left.getRow(0));
+                    left.setRow(0, temp);
+                }
+                break;
+            case 3:
+                if (clockwise) {
+                    down.values = down.transposeSide();
+
+                    Color[] temp = front.getRow(2);
+                    front.setRow(2, left.getRow(2));
+                    left.setRow(2, back.getRow(2));
+                    back.setRow(2, right.getRow(2));
+                    right.setRow(2, temp);
+                }
+                break;
+            case 4:
+                if (clockwise) {
+                    front.values = front.transposeSide();
+
+                    Color[] temp = left.getCol(2);
+                    left.setCol(2, down.getCol(2));
+                    down.setCol(2, right.getCol(2));
+                    right.setCol(2, up.getCol(2));
+                    up.setCol(2, temp);  
+                }
+
+                break;
+            case 5:
+                if (clockwise) {
+                    back.values = back.transposeSide();
+
+                    Color[] temp = left.getCol(0);
+                    left.setCol(0, up.getCol(0));
+                    up.setCol(0, right.getCol(0));
+                    right.setCol(0, down.getCol(0));
+                    down.setCol(0, temp);  
+                }
+
+                break;
+        }
+        printCube();
     }
 
     public void rotateFace(int faceIndex, boolean clockwise) {
+        boolean[] currentTurn = {clockwise};
+        int angle = 0;
         // 1. Collect cubelets for the face/layer being turned
         List<Node> faceNodes = new ArrayList<>();
         for (Node node : cubeGroup.getChildren()) {
@@ -305,14 +373,46 @@ public class RubixCube {
                 rt.setAxis(Rotate.Z_AXIS); // +Z or -Z face
                 break;
         }
-        
-        rt.setByAngle(clockwise ? 90 : -90); // or -90 for counterclockwise
+
+        if (faceIndex % 2 == 1) { 
+            angle = currentTurn[0] ? -90 : 90;
+        }
+        else {
+            angle = currentTurn[0] ? 90 : -90;
+        }
+        rt.setByAngle(angle); // or -90 for counterclockwise
         rt.setOnFinished(e -> {
             // 3. After animation, flatten group and update state
             cubeGroup.getChildren().addAll(rotatingGroup.getChildren());
             cubeGroup.getChildren().remove(rotatingGroup);
+            updateFacesArray(faceIndex, currentTurn[0]);
+            buildCube();
         });
 
         rt.play();
+    }
+
+    private void printCube() {
+        System.out.println("Left Side:");
+        printSide(left);
+        System.out.println("Right Side:");
+        printSide(right);
+        System.out.println("Up Side:");
+        printSide(up);
+        System.out.println("Down Side:");
+        printSide(down);
+        System.out.println("Front Side:");
+        printSide(front);
+        System.out.println("Back Side:");
+        printSide(back);
+    }
+
+    private void printSide(RubixSide side) {
+        for (int i = SIZE - 1; i >= 0; i--) {
+            for (int j = SIZE - 1; j >= 0; j--) {
+                System.out.print(ColorUtil.getColorName(side.values[j][i]) + " at (" + j + ", " + i + ") ");
+            }
+            System.out.println();
+        }
     }
 }
