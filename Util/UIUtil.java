@@ -52,7 +52,7 @@ public class UIUtil {
         Button zoomOut = (Button) zoomButtons.get(1);
         Button resetView = (Button) zoomButtons.get(2);
 
-        resetView.setOnAction(e -> {
+        resetView.setOnAction(_ ->{
             // Reset camera zoom
             camera.setTranslateZ(-650);
 
@@ -65,12 +65,12 @@ public class UIUtil {
             buttonAction(resetView);
         });
 
-        zoomIn.setOnAction(e -> {
+        zoomIn.setOnAction(_ ->{
             InteractionUtil.zoomIn(camera);
             buttonAction(zoomIn);
         });
 
-        zoomOut.setOnAction(e -> {
+        zoomOut.setOnAction(_ ->{
             InteractionUtil.zoomOut(camera);
             buttonAction(zoomOut);
         });
@@ -129,62 +129,62 @@ public class UIUtil {
         Button leftReverse = (Button) rotateButtons.get(10);
         Button downReverse = (Button) rotateButtons.get(11);
 
-        front.setOnAction(e -> {
+        front.setOnAction(_ ->{
             cube.rotateFace(4, true);
             buttonAction(front);
         });
         
-        right.setOnAction(e -> {
+        right.setOnAction(_ ->{
             cube.rotateFace(1, true);
             buttonAction(right);
         });
 
-        up.setOnAction(e -> {
+        up.setOnAction(_ ->{
             cube.rotateFace(2, true);
             buttonAction(up);
         });
 
-        frontReverse.setOnAction(e -> {
+        frontReverse.setOnAction(_ -> {
             cube.rotateFace(4, false);
             buttonAction(frontReverse);
         });
 
-        rightReverse.setOnAction(e -> {
+        rightReverse.setOnAction(_ -> {
             cube.rotateFace(1, false);
             buttonAction(rightReverse);
         });
 
-        upReverse.setOnAction(e -> {
+        upReverse.setOnAction(_ ->{
             cube.rotateFace(2, false);
             buttonAction(upReverse);
         });
 
-        left.setOnAction(e -> {
+        left.setOnAction(_ ->{
             cube.rotateFace(0, true);
             buttonAction(left);
         });
 
-        back.setOnAction(e -> {
+        back.setOnAction(_ ->{
             cube.rotateFace(5, true);
             buttonAction(back);
         });
 
-        down.setOnAction(e -> {
+        down.setOnAction(_ ->{
             cube.rotateFace(3, true);
             buttonAction(down);
         });
 
-        leftReverse.setOnAction(e -> {
+        leftReverse.setOnAction(_ -> {
             cube.rotateFace(0, false);
             buttonAction(leftReverse);
         });
 
-        backReverse.setOnAction(e -> {
+        backReverse.setOnAction(_ -> {
             cube.rotateFace(5, false);
             buttonAction(backReverse);
         });
 
-        downReverse.setOnAction(e -> {
+        downReverse.setOnAction(_ -> {
             cube.rotateFace(3, false);
             buttonAction(downReverse);
         });
@@ -209,10 +209,10 @@ public class UIUtil {
 
         btn.setStyle(baseStyle);
 
-        btn.setOnAction(e -> buttonAction(btn));
+        btn.setOnAction(_ -> buttonAction(btn));
 
-        btn.setOnMouseEntered(e -> btn.setStyle(hoverStyle));
-        btn.setOnMouseExited(e -> {
+        btn.setOnMouseEntered(_ -> btn.setStyle(hoverStyle));
+        btn.setOnMouseExited(_ ->{
             if (!buttonStates.get(btn))
                 btn.setStyle(baseStyle);
         });

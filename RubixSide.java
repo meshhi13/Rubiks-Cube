@@ -14,7 +14,24 @@ public class RubixSide {
         }
     }
 
-    public Color[][] transposeSide(){
+    public void rotateSideCW(){
+        int m = values.length;
+        int n = values[0].length;
+
+        Color[][] newValues = new Color[m][n];
+
+        for (int i = 0; i < m; i++){
+            for (int j = 0; j < n; j++){
+                newValues[j][n - i - 1] = values[i][j];
+            }
+        }
+
+        
+
+        values = newValues;
+    }
+
+    public Color[][] rotateSideCCW(){
         int m = values.length;
         int n = values[0].length;
 
@@ -22,7 +39,7 @@ public class RubixSide {
 
         for(int x = 0; x < n; x++) {
             for(int y = 0; y < m; y++) {
-                transposeSide[x][y] = values[y][x];
+                transposeSide[x][y] = values[m - y - 1][n - x - 1];
             }
         }
 

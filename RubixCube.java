@@ -6,13 +6,13 @@ import javafx.animation.RotateTransition;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
+
 import javafx.scene.shape.Box;
 import javafx.scene.transform.Rotate;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.util.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import Rubix.Util.ColorUtil;
 import static Rubix.RubixSide.SIZE;
@@ -82,7 +82,9 @@ public class RubixCube {
         // +X face (Left, face 0)
         if (x == 0) {
             Box sticker = new Box(size, size, 1);
-            sticker.setMaterial(new PhongMaterial(left.values[z][y]));
+            PhongMaterial material = new PhongMaterial(left.values[SIZE - z - 1][y]);
+            material.setSpecularColor(left.values[SIZE - z - 1][y]);
+            sticker.setMaterial(material);
             sticker.setTranslateX(base.getTranslateX() - offset);
             sticker.setTranslateY(base.getTranslateY());
             sticker.setTranslateZ(base.getTranslateZ());
@@ -107,7 +109,9 @@ public class RubixCube {
         // -X face (Right, face 1)
         if (x == 2) {
             Box sticker = new Box(size, size, 1);
-            sticker.setMaterial(new PhongMaterial(right.values[z][y]));
+            PhongMaterial material = new PhongMaterial(right.values[SIZE - z - 1][y]);
+            material.setSpecularColor(right.values[SIZE - z - 1][y]);
+            sticker.setMaterial(material);
             sticker.setTranslateX(base.getTranslateX() + offset);
             sticker.setTranslateY(base.getTranslateY());
             sticker.setTranslateZ(base.getTranslateZ());
@@ -132,7 +136,9 @@ public class RubixCube {
         // +Y face (Up, face 2)
         if (y == 0) {
             Box sticker = new Box(size, size, 1);
-            sticker.setMaterial(new PhongMaterial(up.values[x][z]));
+            PhongMaterial material = new PhongMaterial(up.values[x][z]);
+            material.setSpecularColor(up.values[x][z]);
+            sticker.setMaterial(material);
             sticker.setTranslateX(base.getTranslateX());
             sticker.setTranslateY(base.getTranslateY() - offset);
             sticker.setTranslateZ(base.getTranslateZ());
@@ -156,7 +162,9 @@ public class RubixCube {
         // -Y face (Down, face 3)
         if (y == 2) {
             Box sticker = new Box(size, size, 1);
-            sticker.setMaterial(new PhongMaterial(down.values[x][z]));
+            PhongMaterial material = new PhongMaterial(down.values[x][z]);
+            material.setSpecularColor(down.values[x][z]);
+            sticker.setMaterial(material);
             sticker.setTranslateX(base.getTranslateX());
             sticker.setTranslateY(base.getTranslateY() + offset);
             sticker.setTranslateZ(base.getTranslateZ());
@@ -181,7 +189,9 @@ public class RubixCube {
         // +Z face (Front, face 4)
         if (z == 0) {
             Box sticker = new Box(size, size, 1);
-            sticker.setMaterial(new PhongMaterial(front.values[x][y]));
+            PhongMaterial material = new PhongMaterial(front.values[x][y]);
+            material.setSpecularColor(front.values[x][y]);
+            sticker.setMaterial(material);
             sticker.setTranslateX(base.getTranslateX());
             sticker.setTranslateY(base.getTranslateY());
             sticker.setTranslateZ(base.getTranslateZ() - offset);
@@ -203,7 +213,9 @@ public class RubixCube {
         // -Z face (Back, face 5)
         if (z == 2) {
             Box sticker = new Box(size, size, 1);
-            sticker.setMaterial(new PhongMaterial(back.values[x][y]));
+            PhongMaterial material = new PhongMaterial(back.values[x][y]);
+            material.setSpecularColor(back.values[x][y]);
+            sticker.setMaterial(material);
             sticker.setTranslateX(base.getTranslateX());
             sticker.setTranslateY(base.getTranslateY());
             sticker.setTranslateZ(base.getTranslateZ() + offset);
@@ -256,8 +268,7 @@ public class RubixCube {
         switch (faceIndex) {
             case 0:
                 if (clockwise) {
-                    
-                    left.values = left.transposeSide();
+                    left.rotateSideCW();
 
                     Color[] temp = front.getCol(0);
                     front.setCol(0, up.getCol(0));
@@ -265,43 +276,35 @@ public class RubixCube {
                     back.setCol(0, down.getCol(0));
                     down.setCol(0, temp);  
                 }
+
                 break;
             case 1:
                 if (clockwise) {
-                    Color[][] newValues = new Color[SIZE][SIZE];
-                    for (int i = 0; i < SIZE; i++){
-                        newValues[i] = right.getRow(i);   
-                    }
-
-                    right.values = newValues;
+                    right.rotateSideCW();
 
                     Color[] temp = back.getCol(2);
                     back.setCol(2, up.getCol(2));
-                    up.setCol(2, front.getCol(2));
+                    up.setCol(2, reverseArray(front.getCol(2)));
                     front.setCol(2, down.getCol(2));
-                    down.setCol(2, temp);  
+                    down.setCol(2, reverseArray(temp));  
                 }
+
                 break;
             case 2:
                 if (clockwise) {
-                    
-                    Color[][] newValues = new Color[SIZE][SIZE];
-                    for (int i = 0; i < SIZE; i++){
-                        newValues[i] = up.getRow(i);   
-                    }
-
-                    up.values = newValues;
+                    up.rotateSideCW();
 
                     Color[] temp = front.getRow(0);
-                    front.setRow(0, right.getRow(0));
+                    front.setRow(0, reverseArray(right.getRow(0)));
                     right.setRow(0, back.getRow(0));
-                    back.setRow(0, left.getRow(0));
+                    back.setRow(0, reverseArray(left.getRow(0)));
                     left.setRow(0, temp);
                 }
+
                 break;
             case 3:
                 if (clockwise) {
-                    down.values = down.transposeSide();
+                    down.rotateSideCW();
 
                     Color[] temp = front.getRow(2);
                     front.setRow(2, left.getRow(2));
@@ -309,28 +312,23 @@ public class RubixCube {
                     back.setRow(2, right.getRow(2));
                     right.setRow(2, temp);
                 }
+
                 break;
             case 4:
                 if (clockwise) {
-                    front.values = front.transposeSide();
-
-                    Color[] temp = left.getCol(2);
-                    left.setCol(2, down.getCol(2));
-                    down.setCol(2, right.getCol(2));
-                    right.setCol(2, up.getCol(2));
-                    up.setCol(2, temp);  
+                    front.rotateSideCW();
                 }
 
                 break;
             case 5:
                 if (clockwise) {
-                    back.values = back.transposeSide();
+                    back.rotateSideCW();
 
-                    Color[] temp = left.getCol(0);
-                    left.setCol(0, up.getCol(0));
-                    up.setCol(0, right.getCol(0));
-                    right.setCol(0, down.getCol(0));
-                    down.setCol(0, temp);  
+                    Color[] temp = up.getRow(2);
+                    up.setRow(2, right.getCol(0));
+                    right.setCol(0, reverseArray(down.getRow(2)));
+                    down.setRow(2, left.getCol(0));
+                    left.setCol(0, reverseArray(temp));
                 }
 
                 break;
@@ -338,6 +336,14 @@ public class RubixCube {
         printCube();
     }
 
+    private Color[] reverseArray(Color[] arr) {
+        Color[] rev = new Color[arr.length];
+        for (int i = 0; i < arr.length; i++) {
+            rev[i] = arr[arr.length - 1 - i];
+        }
+        return rev;
+    }
+    
     public void rotateFace(int faceIndex, boolean clockwise) {
         boolean[] currentTurn = {clockwise};
         int angle = 0;
@@ -381,7 +387,7 @@ public class RubixCube {
             angle = currentTurn[0] ? 90 : -90;
         }
         rt.setByAngle(angle); // or -90 for counterclockwise
-        rt.setOnFinished(e -> {
+        rt.setOnFinished(_ -> {
             // 3. After animation, flatten group and update state
             cubeGroup.getChildren().addAll(rotatingGroup.getChildren());
             cubeGroup.getChildren().remove(rotatingGroup);
