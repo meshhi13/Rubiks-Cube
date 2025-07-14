@@ -34,7 +34,7 @@ Rotate, scramble, and reset the cube with smooth animations and a modern UI.
 
 1. **Clone the repository:**
     ```sh
-    git clone https://github.com/meshhi13/Rubiks.git
+    git clone https://github.com/meshhi13/Rubiks-Cube.git
     cd Rubiks
     ```
 
