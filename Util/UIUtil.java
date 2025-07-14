@@ -36,12 +36,13 @@ public class UIUtil {
 
     static HashMap<Button, Boolean> buttonStates = new HashMap<>();
     static HashMap<Button, Thread> buttonThreads = new HashMap<>();
-    static List<String> tempButtonLabels = Arrays.asList("F", "R", "U", "F'", "R'", "U'", "L", "B", "D", "L'", "B'", "D'", "◀", "▶", "⟳", "+", "-");
-    static List<String> tempDisableLabels = Arrays.asList("F", "R", "U", "F'", "R'", "U'", "L", "B", "D", "L'", "B'", "D'", "◀", "▶", "⟳");
+    static List<String> tempButtonLabels = Arrays.asList("F", "R", "U", "F'", "R'", "U'", "L", "B", "D", "L'", "B'", "D'", "◀", "▶", "🎲", "🔄", "+", "-");
+    static List<String> tempDisableLabels = Arrays.asList("F", "R", "U", "F'", "R'", "U'", "L", "B", "D", "L'", "B'", "D'", "◀", "▶", "🎲", "🔄");
 
     public static AnchorPane createUI(RubixCube cube, PerspectiveCamera camera, Group cubeGroup, Rotate rotateX, Rotate rotateY) {
         AnchorPane overlay = new AnchorPane();
         overlay.setPickOnBounds(false);
+
 
         HBox zoomBox = new HBox(10);
         zoomBox.setStyle("-fx-padding: 20 10 20 10;");
@@ -62,17 +63,17 @@ public class UIUtil {
             rotateX.setAngle(30);
             rotateY.setAngle(30);
 
-            buttonAction(resetView);
+            buttonAction(resetView, 100);
         });
 
         zoomIn.setOnAction(_ ->{
             InteractionUtil.zoomIn(camera);
-            buttonAction(zoomIn);
+            buttonAction(zoomIn, 100);
         });
 
         zoomOut.setOnAction(_ ->{
             InteractionUtil.zoomOut(camera);
-            buttonAction(zoomOut);
+            buttonAction(zoomOut, 100);
         });
 
         AnchorPane.setLeftAnchor(zoomBox, 10.0);
@@ -80,18 +81,22 @@ public class UIUtil {
 
         HBox scrambleBox = new HBox(0);
         scrambleBox.setStyle("-fx-padding: 20 10 20 10;");
-        scrambleBox.getChildren().add(createButton("⟳"));
-        overlay.getChildren().add(scrambleBox);
+        scrambleBox.getChildren().addAll(createButton("🎲"), createButton("🔄") );
 
         AnchorPane.setLeftAnchor(scrambleBox, 10.0);
         AnchorPane.setTopAnchor(scrambleBox, 10.0);
-        
-        HBox playbackBox = new HBox(10);
-        playbackBox.setStyle("-fx-padding: 20 10 20 10;");
-        playbackBox.getChildren().addAll(
-            createButton("⏪"), createButton("◀"),createButton("▶"),
-            createButton("⏩")
-        );
+
+        Button scrambleButton = (Button) scrambleBox.getChildren().get(0);
+        scrambleButton.setOnAction(_ -> {
+            cube.scramble();
+            buttonAction(scrambleButton, 7500);
+        });
+
+        Button resetButton = (Button) scrambleBox.getChildren().get(1);
+        resetButton.setOnAction(_ -> {
+            cube.reset();
+            buttonAction(resetButton, 1000);
+        });
 
         HBox rotateRow1 = new HBox(10);
         rotateRow1.getChildren().addAll(
@@ -131,74 +136,65 @@ public class UIUtil {
 
         front.setOnAction(_ ->{
             cube.rotateFace(4, true);
-            buttonAction(front);
+            buttonAction(front, 1000);
         });
         
         right.setOnAction(_ ->{
             cube.rotateFace(1, true);
-            buttonAction(right);
+            buttonAction(right, 1000);
         });
 
         up.setOnAction(_ ->{
             cube.rotateFace(2, true);
-            buttonAction(up);
+            buttonAction(up, 1000);
         });
 
         frontReverse.setOnAction(_ -> {
             cube.rotateFace(4, false);
-            buttonAction(frontReverse);
+            buttonAction(frontReverse, 1000);
         });
 
         rightReverse.setOnAction(_ -> {
             cube.rotateFace(1, false);
-            buttonAction(rightReverse);
+            buttonAction(rightReverse, 1000);
         });
 
         upReverse.setOnAction(_ ->{
             cube.rotateFace(2, false);
-            buttonAction(upReverse);
+            buttonAction(upReverse, 1000);
         });
 
         left.setOnAction(_ ->{
             cube.rotateFace(0, true);
-            buttonAction(left);
+            buttonAction(left, 1000);
         });
 
         back.setOnAction(_ ->{
             cube.rotateFace(5, true);
-            buttonAction(back);
+            buttonAction(back, 1000);
         });
 
         down.setOnAction(_ ->{
             cube.rotateFace(3, true);
-            buttonAction(down);
+            buttonAction(down, 1000);
         });
 
         leftReverse.setOnAction(_ -> {
             cube.rotateFace(0, false);
-            buttonAction(leftReverse);
+            buttonAction(leftReverse, 1000);
         });
 
         backReverse.setOnAction(_ -> {
             cube.rotateFace(5, false);
-            buttonAction(backReverse);
+            buttonAction(backReverse, 1000);
         });
 
         downReverse.setOnAction(_ -> {
             cube.rotateFace(3, false);
-            buttonAction(downReverse);
+            buttonAction(downReverse, 1000);
         });
-        
-        AnchorPane.setRightAnchor(playbackBox, 10.0);
-        AnchorPane.setBottomAnchor(playbackBox, 10.0);
 
-        ObservableList<Node> playbackButtons = playbackBox.getChildren();
-        Button fastReverse = (Button) playbackButtons.get(0);
-        Button slowReverse = (Button) playbackButtons.get(1);
-        Button slowForward = (Button) playbackButtons.get(2);
-        Button fastForward = (Button) playbackButtons.get(3);
-
-        overlay.getChildren().addAll(zoomBox, playbackBox, rotateBox);
+        overlay.getChildren().addAll(zoomBox, scrambleBox, rotateBox);
         return overlay;
     }
     
@@ -209,7 +205,7 @@ public class UIUtil {
 
         btn.setStyle(baseStyle);
 
-        btn.setOnAction(_ -> buttonAction(btn));
+        btn.setOnAction(_ -> buttonAction(btn, 100));
 
         btn.setOnMouseEntered(_ -> btn.setStyle(hoverStyle));
         btn.setOnMouseExited(_ ->{
@@ -220,7 +216,7 @@ public class UIUtil {
         return btn;
     }
 
-    private static void buttonAction(Button btn) {
+    private static void buttonAction(Button btn, int timeout) {
         String label = btn.getText();
 
         if (tempButtonLabels.contains(label)) {
@@ -231,7 +227,7 @@ public class UIUtil {
 
             Thread thread = new Thread(() -> {
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(timeout);
                 } catch (InterruptedException ex) {
                     return;
                 }

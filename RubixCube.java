@@ -2,7 +2,9 @@ package Rubix;
 
 import java.util.List;
 
+import javafx.animation.KeyFrame;
 import javafx.animation.RotateTransition;
+import javafx.animation.Timeline;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
@@ -263,18 +265,26 @@ public class RubixCube {
     }
 
     private void updateFacesArray(int faceIndex, boolean clockwise){
-        System.out.println("Rotating face: " + faceIndex + ", clockwise: " + clockwise);
 
         switch (faceIndex) {
             case 0:
                 if (clockwise) {
+                    left.rotateSideCCW();
+
+                    Color[] temp = front.getCol(0);
+                    front.setCol(0, reverseArray(up.getCol(0)));
+                    up.setCol(0, back.getCol(0));
+                    back.setCol(0, reverseArray(down.getCol(0)));
+                    down.setCol(0, temp);  
+                }
+                else {
                     left.rotateSideCW();
 
                     Color[] temp = front.getCol(0);
-                    front.setCol(0, up.getCol(0));
-                    up.setCol(0, back.getCol(0));
-                    back.setCol(0, down.getCol(0));
-                    down.setCol(0, temp);  
+                    front.setCol(0, down.getCol(0));
+                    down.setCol(0, reverseArray(back.getCol(0)));
+                    back.setCol(0, up.getCol(0));
+                    up.setCol(0, reverseArray(temp));  
                 }
 
                 break;
@@ -288,6 +298,15 @@ public class RubixCube {
                     front.setCol(2, down.getCol(2));
                     down.setCol(2, reverseArray(temp));  
                 }
+                else {
+                    right.rotateSideCCW();
+
+                    Color[] temp = back.getCol(2);
+                    back.setCol(2, reverseArray(down.getCol(2)));
+                    down.setCol(2, front.getCol(2));
+                    front.setCol(2, reverseArray(up.getCol(2)));
+                    up.setCol(2, temp);  
+                }
 
                 break;
             case 2:
@@ -300,23 +319,56 @@ public class RubixCube {
                     back.setRow(0, reverseArray(left.getRow(0)));
                     left.setRow(0, temp);
                 }
+                else {
+                    up.rotateSideCCW();
+
+                    Color[] temp = front.getRow(0);
+                    front.setRow(0, left.getRow(0));
+                    left.setRow(0, reverseArray(back.getRow(0)));
+                    back.setRow(0, right.getRow(0));
+                    right.setRow(0, reverseArray(temp));
+                }
 
                 break;
             case 3:
                 if (clockwise) {
-                    down.rotateSideCW();
+                    down.rotateSideCCW();
 
                     Color[] temp = front.getRow(2);
                     front.setRow(2, left.getRow(2));
-                    left.setRow(2, back.getRow(2));
+                    left.setRow(2, reverseArray(back.getRow(2)));
                     back.setRow(2, right.getRow(2));
-                    right.setRow(2, temp);
+                    right.setRow(2, reverseArray(temp));
+                }
+                else {
+                    down.rotateSideCW();
+
+                    Color[] temp = front.getRow(2);
+                    front.setRow(2, reverseArray(right.getRow(2)));
+                    right.setRow(2, back.getRow(2));
+                    back.setRow(2, reverseArray(left.getRow(2)));
+                    left.setRow(2, temp);
                 }
 
                 break;
             case 4:
                 if (clockwise) {
+                    front.rotateSideCCW();
+
+                    Color[] temp = up.getRow(0);
+                    up.setRow(0, reverseArray(left.getCol(2)));
+                    left.setCol(2, down.getRow(0));
+                    down.setRow(0, reverseArray(right.getCol(2)));
+                    right.setCol(2, temp);
+                }
+                else {
                     front.rotateSideCW();
+
+                    Color[] temp = up.getRow(0);
+                    up.setRow(0, right.getCol(2));
+                    right.setCol(2, reverseArray(down.getRow(0)));
+                    down.setRow(0, left.getCol(2));
+                    left.setCol(2, reverseArray(temp));
                 }
 
                 break;
@@ -330,10 +382,17 @@ public class RubixCube {
                     down.setRow(2, left.getCol(0));
                     left.setCol(0, reverseArray(temp));
                 }
+                else {
+                    back.rotateSideCCW();
 
+                    Color[] temp = up.getRow(2);
+                    up.setRow(2, reverseArray(left.getCol(0)));
+                    left.setCol(0, down.getRow(2));
+                    down.setRow(2, reverseArray(right.getCol(0)));
+                    right.setCol(0, temp);
+                }
                 break;
         }
-        printCube();
     }
 
     private Color[] reverseArray(Color[] arr) {
@@ -343,11 +402,40 @@ public class RubixCube {
         }
         return rev;
     }
+
+    public void randomMove() {
+        int[] faceOrder = {0, 1, 2, 3, 4, 5};
+        int faceIndex = (int) (Math.random() * faceOrder.length);
+        boolean clockwise = Math.random() < 0.5;
+        rotateFace(faceOrder[faceIndex], clockwise);
+    }
+
+    public void scramble() {
+        int moves = 20;
+        Timeline timeline = new Timeline();
+        for (int i = 0; i < moves; i++) {
+            KeyFrame kf = new KeyFrame(Duration.millis(i * 350), _ -> {
+                randomMove();
+            });
+            timeline.getKeyFrames().add(kf);
+        }
+        timeline.play();
+    }
+
+    public void reset() {
+        left.reset(colorPalette[0]);
+        right.reset(colorPalette[1]);
+        up.reset(colorPalette[2]);
+        down.reset(colorPalette[3]);
+        front.reset(colorPalette[4]);
+        back.reset(colorPalette[5]);
+        cubeGroup.getChildren().clear();
+        buildCube();
+    }
     
     public void rotateFace(int faceIndex, boolean clockwise) {
         boolean[] currentTurn = {clockwise};
         int angle = 0;
-        // 1. Collect cubelets for the face/layer being turned
         List<Node> faceNodes = new ArrayList<>();
         for (Node node : cubeGroup.getChildren()) {
             if (isOnFace(node, faceIndex)) {
@@ -355,15 +443,12 @@ public class RubixCube {
             }
         }
 
-        // 2. Remove the face nodes from the main group
         cubeGroup.getChildren().removeAll(faceNodes);
 
-        // 3. Create the rotating group and add the face nodes
         Group rotatingGroup = new Group();
         rotatingGroup.getChildren().addAll(faceNodes);
         cubeGroup.getChildren().add(rotatingGroup);
 
-        // 2. Animate the rotation
         RotateTransition rt = new RotateTransition(Duration.millis(300), rotatingGroup);
         switch (faceIndex) {
             case 0:
@@ -388,7 +473,6 @@ public class RubixCube {
         }
         rt.setByAngle(angle); // or -90 for counterclockwise
         rt.setOnFinished(_ -> {
-            // 3. After animation, flatten group and update state
             cubeGroup.getChildren().addAll(rotatingGroup.getChildren());
             cubeGroup.getChildren().remove(rotatingGroup);
             updateFacesArray(faceIndex, currentTurn[0]);
